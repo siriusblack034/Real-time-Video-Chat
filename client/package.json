@@ -10,6 +10,7 @@
   "dependencies": {
     "@daily-co/daily-js": "^0.17.0",
     "core-js": "^3.6.5",
+    "gsap": "^3.7.1",
     "vue": "^2.6.11"
   },
   "devDependencies": {
