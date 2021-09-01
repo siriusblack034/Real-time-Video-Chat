@@ -6,15 +6,13 @@ async function createRoom() {
       enable_chat: true
     }
   }
-
-  const url = 'https://api.daily.co/v1/rooms';
-  const response = await fetch(url, {
+  const response = await fetch('https://api.daily.co/v1/rooms', {
     method: 'POST',
     body: JSON.stringify(options),
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.VUE_APP_DAILY_API_KEY}`
+      Authorization: `Bearer 712b0e7e5ec78d82f77aec1715b445cb2650e6a2f39481ddeaba4c4ae559e24c`
     }
   })
   const room = await response.json();
