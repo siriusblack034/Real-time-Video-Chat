@@ -4,9 +4,7 @@
       <h2>Daily Room Demo</h2>
       <p>Start demo with a new unique room or paste in your own room URL</p>
       <div class="start-call-container">
-        <button @click="createAndJoinRoom" :disabled="!runningLocally">
-          Create Room and Start
-        </button>
+        <button @click="createAndJoinRoom">Create Room and Start</button>
         <p v-if="roomError" class="error">Room could not be created</p>
         <p class="subtext">or</p>
 
@@ -42,10 +40,8 @@ import Controls from "./Controls.vue";
 export default {
   name: "HelloWorld",
   components: { Controls },
-  computed: {
-    runningLocally() {
-      return window?.location?.origin.includes("localhost");
-    },
+  created(){
+    console.log(process.env.VUE_APP_DAILY_API_KEY);
   },
   data() {
     return {
@@ -58,18 +54,19 @@ export default {
   },
   methods: {
     createAndJoinRoom() {
+      let loader = this.$loading.show();
       api
         .createRoom()
         .then((room) => {
           this.roomURL = room.url;
-          this.joinRoom();
+          this.joinRoom(loader);
         })
         .catch((e) => {
           console.log(e);
           this.roomError = true;
         });
     },
-    joinRoom() {
+    async joinRoom(loader) {
       if (callFrame) {
         this.callFrame.destroy();
       }
@@ -83,7 +80,6 @@ export default {
           this.callFrame.destroy();
         }
       };
-      console.log(this.status);
       // DailyIframe container element
       const callWrapper = this.$refs.callRef;
       // Create Daily call
@@ -91,7 +87,7 @@ export default {
         iframeStyle: IFRAME_OPTIONS,
         showLeaveButton: true,
       });  */
-      const callFrame = DailyIframe.createFrame(callWrapper, {
+      const callFrame = await DailyIframe.createFrame(callWrapper, {
         iframeStyle: {
           height: "auto",
           width: "100%",
@@ -105,7 +101,7 @@ export default {
         showFullscreenButton: true,
       });
       this.callFrame = callFrame;
-      console.log(this.callFrame);
+      loader.hide();
       // Add event listeners and join call
       callFrame
         .on("loaded", logEvent)
@@ -114,10 +110,11 @@ export default {
         .on("joining-meeting", goToLobby)
         .on("joined-meeting", goToCall)
         .on("left-meeting", leaveCall);
-      callFrame.join({ url: this.roomURL });
+      await callFrame.join({ url: this.roomURL });
     },
     submitJoinRoom() {
-      this.joinRoom();
+      let loader = this.$loading.show();
+      this.joinRoom(loader);
     },
     validateInput() {
       this.validRoomURL = !this.roomUrl;
